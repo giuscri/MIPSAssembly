@@ -6,4 +6,4 @@ You can find `spim` in Debian's official repository.
 
 For running, for instance, `hello.asm` type from bash-console
 
-`$ spim -file hello.asm`
+``$ spim -file hello.asm``
