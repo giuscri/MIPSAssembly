@@ -1,0 +1,27 @@
+#!/bin/bash
+
+## If no argument is provided, then exit ...
+if [ -z $1 ]; then
+    echo "Usage: $0 <src_file>"
+    exit
+fi
+
+## If file provided is not found, then exit ...
+if [ ! -f $1 ]; then
+    echo "$1 not found"
+    exit
+fi
+
+## Else, file has to end with the .asm string ...
+case "$1" in
+    *.asm*)
+        ;;
+    *)
+        echo "You need a .asm file ..."
+        exit
+        ;;
+esac
+
+## Let spim interpreting source file ...
+spim -f $1
+

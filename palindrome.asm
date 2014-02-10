@@ -1,66 +1,88 @@
-## palindrome.asm -- Ask user to type a string hence
-##                   check if it is palindrome.
+## palindrome.asm-- reads a line of text and tests if it is a palindrome.
 
         .text
+
 main:
-        ## Ask user to type a string ...
-        la          $a0, typestring_msg
-        li          $v0, 4
-        syscall
+                   la             $a0, sample_str
+                   li             $a1, 1024
+                   li             $v0, 8
+                   syscall
 
-        ## Load the string ...
-        la          $a0, m_str
-        li          $v0, 8
-        syscall
+                   ## Searching address of null-character
+                   ## for sample_str
+                   la             $t0, sample_str
+length:
+                   add            $t0, $t0, 1
+                   lb             $t1, ($t0)
+                   bne            $t1, 0, length
 
-        ## Load newline character ...
-        la          $t2, newline
-        lb          $t2, ($t2)
-  
-        ## Get the address of newline character ...
-getnewlineaddress_loop:
-        lb          $t0, ($a0)
-        beq         $t0, $t2, endgetnewlineaddress_loop
-        add         $a0, $a0, 1
-        b           getnewlineaddress_loop
-endgetnewlineaddress_loop:
+                   move           $t3, $t0
+                   la             $t0, sample_str
 
-        ## Store both first readable character address in t0, last in a0 ...
-        la          $t0, m_str
-        add         $a0, $a0, -1
+search_letter_from_left:
 
-        ## Check if loaded string is palindrome ...
-checkpalindromeness_loop:
-        lb          $t1, ($t0)
-        lb          $t2, ($a0)
-        bne         $t1, $t2, not_palindrome_msg
-        add         $t0, $t0, 1
-        add         $a0, $a0, -1
-        ble         $t0, $a0, checkpalindromeness_loop
-        b           palindrome_msg
+                   bge            $t0, $t3, palindrome
 
-        not_palindrome_msg:
-        la          $a0, negative_msg
-        li          $v0, 4
-        syscall
-        b           endcheckpalindromeness_loop
+                   lb             $t1, ($t0)
 
-        palindrome_msg:
-        la          $a0, positive_msg
-        li          $v0, 4
-        syscall
-        b           endcheckpalindromeness_loop
-endcheckpalindromeness_loop:
+                   move           $a0, $t1
+                   li             $v0, 1
+                   syscall
 
+                   add            $t0, $t0, 1
+                   blt            $t1, 0x41, search_letter_from_left
+                   bgt            $t1, 0x7A, search_letter_from_left
 
+search_letter_from_right:
+
+                   ble            $t3, $t0, palindrome
+
+                   lb             $t2, ($t3)
+
+                   move           $a0, $t2
+                   li             $v0, 1
+                   syscall
+
+                   add            $t3, $t3, -1
+                   blt            $t2, 0x41, search_letter_from_right
+                   bgt            $t2, 0x7A, search_letter_from_right
+
+                   beq            $t1, $t2, search_letter_from_left
+first_attempt:
+                   add            $t1, $t1, -32
+                   beq            $t1, $t2, search_letter_from_left
+                   add            $t1, $t1, 32
+second_attempt:
+                   add            $t2, $t2, -32
+                   beq            $t1, $t2, search_letter_from_left
+                   b              not_palindrome
+
+palindrome:
+
+                   ## Prints "Found palindrome-nature ..."
+                   la             $a0, palindrome_msg
+                   li             $v0, 4
+                   syscall
+
+                   b              exit
+
+not_palindrome:
+ 
+                   ## Prints "Found not-palindrome-nature ..."
+                   la             $a0, not_palindrome_msg
+                   li             $v0, 4
+                   syscall
+
+                   b              exit
 
 exit:
-        li          $v0, 10
-        syscall
+                   li             $v0, 10
+                   syscall
 
         .data
-typestring_msg:     .asciiz "Type a string:\n"
-m_str:              .space 500
-newline:            .byte  0x0A
-negative_msg:       .asciiz "String is not palindrome\n"
-positive_msg:       .asciiz "String is palindrome\n"
+sample_str:        .space         1024
+null_byte:         .byte          0x00
+newline_byte:      .byte          0x10
+
+palindrome_msg:    .asciiz        "Found palindrome-nature ...\n"
+not_palindrome_msg:.asciiz        "Found not-palindrome-nature ...\n"
