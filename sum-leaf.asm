@@ -40,7 +40,7 @@ exit:
 
 sum:
         add       $v0, $a0, $a1
-        j         $ra
+        jr        $ra
 
         .data
 welcome_str:      .asciiz        "This process will print 15+15\n"
