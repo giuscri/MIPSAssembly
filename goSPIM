@@ -24,6 +24,3 @@ esac
 
 ## Let spim interpreting source file ...
 spim -f $1
-
-# Printing a newline at the end of execution ...
-echo
